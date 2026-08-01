@@ -524,19 +524,78 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
 
   var sessionBookings = [];
 
+  // Wraps fetch so a stalled request fails loudly instead of hanging.
+  function fetchWithTimeout(url, options, ms) {
+    return new Promise(function (resolve, reject) {
+      var done = false;
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        reject(new Error('The request timed out after ' + (ms / 1000) + 's. ' +
+          'If you opened this file directly from your computer, the browser may be ' +
+          'blocking the call to Google. Try hosting the page instead.'));
+      }, ms);
+
+      fetch(url, options).then(function (r) {
+        if (done) return;
+        done = true; clearTimeout(timer); resolve(r);
+      }, function (err) {
+        if (done) return;
+        done = true; clearTimeout(timer);
+        reject(new Error(err.message + ' — this usually means the browser blocked ' +
+          'the request to Apps Script (CORS). Hosting the page fixes it.'));
+      });
+    });
+  }
+
+  // Apps Script occasionally answers with an HTML error page instead of
+  // JSON — a transient Google problem, not a bug in the script. Reading the
+  // body as text first lets us detect that and retry rather than crash.
+  function fetchJson(url, options, ms) {
+    return fetchWithTimeout(url, options, ms).then(function (r) {
+      return r.text().then(function (text) {
+        var trimmed = text.replace(/^\uFEFF/, '').trim();
+        if (trimmed.charAt(0) === '<') {
+          throw new Error('Google returned a web page instead of data (temporary).');
+        }
+        try {
+          return JSON.parse(trimmed);
+        } catch (e) {
+          throw new Error('Unreadable response from Google (temporary).');
+        }
+      });
+    });
+  }
+
+  // Retries a few times before giving up. Most Apps Script failures are
+  // transient and succeed on the second attempt.
+  function withRetry(makeRequest, attempts) {
+    attempts = attempts || 3;
+    function attempt(n) {
+      return makeRequest().catch(function (err) {
+        if (n >= attempts) throw err;
+        console.warn('Request failed (attempt ' + n + '), retrying: ' + err.message);
+        return new Promise(function (resolve) { setTimeout(resolve, 600 * n); })
+          .then(function () { return attempt(n + 1); });
+      });
+    }
+    return attempt(1);
+  }
+
   var Availability = {
     getBusy: function (from, to, days) {
       if (USE_MOCK) return Promise.resolve(mockBusy(days).concat(sessionBookings));
 
-      return fetch(API_URL + '?from=' + encodeURIComponent(from.toISOString()) +
-                   '&to=' + encodeURIComponent(to.toISOString()))
-        .then(function (r) { return r.json(); })
-        .then(function (rows) {
-          if (rows && rows.error) throw new Error(rows.error);
-          return rows.map(function (b) {
-            return { start: new Date(b.start), end: new Date(b.end) };
-          });
+      return withRetry(function () {
+        return fetchJson(API_URL + '?from=' + encodeURIComponent(from.toISOString()) +
+                         '&to=' + encodeURIComponent(to.toISOString()), {}, 20000);
+      }).then(function (rows) {
+        if (rows && rows.error) throw new Error(rows.error);
+        if (!Array.isArray(rows)) throw new Error('Unexpected reply from the calendar.');
+        return rows.map(function (b) {
+          return { start: new Date(b.start), end: new Date(b.end) };
         });
+      });
     },
 
     createBooking: function (payload) {
@@ -549,7 +608,11 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
       // would make the browser send a CORS preflight request first, and
       // Apps Script cannot answer those. The script parses the body as
       // JSON regardless of the declared type.
-      return fetch(API_URL, {
+      // Deliberately NOT retried. A booking that appears to fail may have
+      // already been written to the calendar, so retrying could create the
+      // same appointment twice. Better to report the failure and let the
+      // patient try again knowingly.
+      return fetchJson(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
@@ -562,7 +625,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
           idNumber: payload.idNumber,
           notes: payload.notes, locale: payload.locale
         })
-      }).then(function (r) { return r.json(); });
+      }, 25000);
     }
   };
 
@@ -873,40 +936,51 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
     return out;
   }
   /* ---- availability cache ----------------------------------------
-     Apps Script takes a second or two to answer, so asking it once per
-     week made navigating painfully slow. Instead we fetch the whole
-     bookable window in one request and keep it. Week navigation, changing
-     the appointment length and the next-available search then all run
-     instantly against the cached copy. The refresh button clears it.
+     Asking Apps Script once per week made navigating slow; asking for the
+     whole 12-week window at once made Google choke and sometimes answer
+     with an error page. So we fetch in 4-week chunks, on demand, and keep
+     each one. Week navigation and changing the appointment length then
+     usually need no request at all. The refresh button clears the lot.
      ---------------------------------------------------------------- */
-  var busyCache = null;      // array of {start, end}
-  var busyPending = null;    // in-flight promise, so we never ask twice at once
+  var CHUNK_WEEKS = 4;
+  var chunks = {};           // index -> array of {start, end}
+  var chunkPending = {};     // index -> in-flight promise
 
-  function allBookableDays() {
-    var out = [], c = firstWeek, end = addDays(lastWeek, 7);
-    while (c <= end) { out.push(c); c = addDays(c, 1); }
+  function chunkIndex(c) {
+    return Math.floor(Math.round((mondayOf(c) - firstWeek) / 86400000) / (7 * CHUNK_WEEKS));
+  }
+  function chunkStart(i) { return addDays(firstWeek, i * 7 * CHUNK_WEEKS); }
+
+  function daysIn(from, to) {
+    var out = [], c = from;
+    while (c <= to) { out.push(c); c = addDays(c, 1); }
     return out;
   }
 
-  function loadBusy() {
-    if (busyCache) return Promise.resolve(busyCache);
-    if (busyPending) return busyPending;
+  function loadChunk(i) {
+    if (chunks[i]) return Promise.resolve(chunks[i]);
+    if (chunkPending[i]) return chunkPending[i];
 
-    busyPending = Availability
-      .getBusy(instant(firstWeek, 0), instant(addDays(lastWeek, 7), 0), allBookableDays())
+    var from = chunkStart(i);
+    var to = addDays(from, 7 * CHUNK_WEEKS);
+
+    chunkPending[i] = Availability
+      .getBusy(instant(from, 0), instant(to, 0), daysIn(from, to))
       .then(function (data) {
-        busyCache = data;
-        busyPending = null;
+        chunks[i] = data;
+        delete chunkPending[i];
         return data;
       }, function (err) {
-        busyPending = null;
+        delete chunkPending[i];
         throw err;
       });
 
-    return busyPending;
+    return chunkPending[i];
   }
 
-  function busyFor(days) { return loadBusy(); }
+  function clearBusyCache() { chunks = {}; chunkPending = {}; }
+
+  function busyFor(days) { return loadChunk(chunkIndex(days[0])); }
 
   /* =====================================================================
      7. OPENING HOURS — built from CONFIG, grouped into day ranges
@@ -1111,16 +1185,25 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
      ===================================================================== */
   function findNextAvailable() {
     var minutes = currentType().minutes;
-    // One request (usually already cached), then a local scan.
-    return loadBusy().then(function (busy) {
-      for (var w = firstWeek; w <= lastWeek; w = addDays(w, 7)) {
-        var days = daysOf(w);
-        for (var i = 0; i < days.length; i++) {
-          if (openSlots(days[i], busy, minutes).length > 0) return w;
+    var lastChunk = chunkIndex(lastWeek);
+
+    // Walks forward one chunk at a time, stopping as soon as it finds
+    // something. Usually the first chunk is already cached, so no request.
+    function scanChunk(i) {
+      if (i > lastChunk) return Promise.resolve(null);
+      return loadChunk(i).then(function (busy) {
+        var w = chunkStart(i);
+        for (var n = 0; n < CHUNK_WEEKS; n++, w = addDays(w, 7)) {
+          if (w < firstWeek || w > lastWeek) continue;
+          var days = daysOf(w);
+          for (var d = 0; d < days.length; d++) {
+            if (openSlots(days[d], busy, minutes).length > 0) return w;
+          }
         }
-      }
-      return null;
-    });
+        return scanChunk(i + 1);
+      });
+    }
+    return scanChunk(0);
   }
 
   el.jump.addEventListener('click', function () {
@@ -1175,7 +1258,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
     if (el.refresh.disabled) return;
     el.refresh.disabled = true;
     el.refresh.classList.add('spinning');
-    busyCache = null;               // force a fresh request
+    clearBusyCache();               // force a fresh request
     var keep = state.selectedSlot;
     render().then(function () {
       // If the slot the patient had chosen has just been taken, drop it.
@@ -1183,11 +1266,13 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
         state.selectedSlot = null;
         el.form.hidden = true;
       }
-    }).catch(function () {}).then(function () {
-      setTimeout(function () {
-        el.refresh.disabled = false;
-        el.refresh.classList.remove('spinning');
-      }, 400);
+    }).catch(function (err) {
+      el.weekempty.hidden = false;
+      el.weekempty.textContent = 'Could not refresh: ' + err.message;
+      console.error('Refresh failed:', err);
+    }).then(function () {
+      el.refresh.disabled = false;
+      el.refresh.classList.remove('spinning');
     });
   });
 
@@ -1271,7 +1356,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
       el.form.hidden = true;
       el.done.hidden = false;
       state.selectedSlot = null;
-      busyCache = null;               // the new event must show up
+      clearBusyCache();               // the new event must show up
       render();
       el.done.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
