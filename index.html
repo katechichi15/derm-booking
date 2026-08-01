@@ -227,6 +227,15 @@ select:hover{border-color:var(--uv)}
 }
 .slot:hover{border-color:var(--uv);color:var(--uv);background:var(--uv-soft);transform:translateY(-1px);box-shadow:0 4px 10px rgba(90,50,224,.16)}
 .slot[aria-pressed="true"]{background:var(--uv);border-color:var(--uv);color:#fff;box-shadow:0 4px 12px rgba(90,50,224,.3)}
+.slot.ghost{
+  background:linear-gradient(90deg,#F3F1F9 25%,#E9E6F3 37%,#F3F1F9 63%);
+  background-size:400% 100%;animation:shimmer 1.4s ease infinite;
+  border-color:transparent;cursor:default;height:41px;pointer-events:none;
+}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+.loadingnote{
+  margin:0;padding:0 18px 18px;font-family:var(--mono);font-size:12px;color:var(--closed);
+}
 .none{font-family:var(--mono);font-size:11px;color:var(--closed);text-align:center;padding:12px 4px}
 .weekempty{padding:6px 18px 24px;font-family:var(--mono);font-size:13px;color:var(--closed);margin:0}
 
@@ -583,12 +592,13 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
   }
 
   var Availability = {
-    getBusy: function (from, to, days) {
+    getBusy: function (from, to, days, fresh) {
       if (USE_MOCK) return Promise.resolve(mockBusy(days).concat(sessionBookings));
 
       return withRetry(function () {
         return fetchJson(API_URL + '?from=' + encodeURIComponent(from.toISOString()) +
-                         '&to=' + encodeURIComponent(to.toISOString()), {}, 20000);
+                         '&to=' + encodeURIComponent(to.toISOString()) +
+                         (fresh ? '&fresh=1' : ''), {}, 20000);
       }).then(function (rows) {
         if (rows && rows.error) throw new Error(rows.error);
         if (!Array.isArray(rows)) throw new Error('Unexpected reply from the calendar.');
@@ -671,6 +681,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
       'book.month': 'Month', 'book.prev': 'Previous week', 'book.next': 'Next week',
       'book.nextAvail': 'Next available', 'book.searching': 'Searching…',
       'book.refresh': 'Refresh availability',
+      'book.loading': 'Checking the calendar…',
       'book.tzBadge': 'Cyprus time',
       'type.standard': 'Standard consultation', 'type.extended': 'Extended consultation',
       'mode.inperson': 'In person', 'mode.inpersonNote': 'At the clinic in Limassol',
@@ -716,6 +727,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
       'book.month': 'Μήνας', 'book.prev': 'Προηγούμενη εβδομάδα', 'book.next': 'Επόμενη εβδομάδα',
       'book.nextAvail': 'Επόμενη διαθέσιμη', 'book.searching': 'Αναζήτηση…',
       'book.refresh': 'Ανανέωση διαθεσιμότητας',
+      'book.loading': 'Έλεγχος ημερολογίου…',
       'book.tzBadge': 'Ώρα Κύπρου',
       'type.standard': 'Τυπική εξέταση', 'type.extended': 'Εκτεταμένη εξέταση',
       'mode.inperson': 'Με φυσική παρουσία', 'mode.inpersonNote': 'Στο ιατρείο στη Λεμεσό',
@@ -761,6 +773,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
       'book.month': 'Месяц', 'book.prev': 'Предыдущая неделя', 'book.next': 'Следующая неделя',
       'book.nextAvail': 'Ближайшее время', 'book.searching': 'Поиск…',
       'book.refresh': 'Обновить расписание',
+      'book.loading': 'Проверяем календарь…',
       'book.tzBadge': 'Время Кипра',
       'type.standard': 'Стандартный приём', 'type.extended': 'Расширенный приём',
       'mode.inperson': 'Очно', 'mode.inpersonNote': 'В клинике в Лимасоле',
@@ -957,15 +970,19 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
     return out;
   }
 
+  var wantFresh = false;     // set by the refresh button for one round
+
   function loadChunk(i) {
     if (chunks[i]) return Promise.resolve(chunks[i]);
     if (chunkPending[i]) return chunkPending[i];
 
     var from = chunkStart(i);
     var to = addDays(from, 7 * CHUNK_WEEKS);
+    var fresh = wantFresh;
+    wantFresh = false;
 
     chunkPending[i] = Availability
-      .getBusy(instant(from, 0), instant(to, 0), daysIn(from, to))
+      .getBusy(instant(from, 0), instant(to, 0), daysIn(from, to), fresh)
       .then(function (data) {
         chunks[i] = data;
         delete chunkPending[i];
@@ -1103,7 +1120,46 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
     el.next.disabled = state.weekStart >= lastWeek;
     el.tzBadge.textContent = t('book.tzBadge') + ' (' + tzOffsetLabel() + ')';
 
+    // If the answer does not arrive almost immediately, show a loading
+    // state. Cached weeks resolve too fast for this to ever flash up.
+    var slow = setTimeout(function () {
+      if (token !== renderToken) return;
+      el.weekempty.hidden = true;
+      el.week.innerHTML = '';
+      el.week.style.gridTemplateColumns = 'repeat(' + days.length + ', minmax(0,1fr))';
+      days.forEach(function (c) {
+        var col = document.createElement('div');
+        col.className = 'col';
+        var head = document.createElement('div');
+        head.className = 'colhead';
+        head.innerHTML = '<span class="dow"></span><span class="num"></span><span class="free"></span>';
+        head.querySelector('.dow').textContent = fmtDay(c, { weekday: 'short' });
+        head.querySelector('.num').textContent = c.getUTCDate();
+        col.appendChild(head);
+        var list = document.createElement('div');
+        list.className = 'collist';
+        for (var n = 0; n < 4; n++) {
+          var ghost = document.createElement('div');
+          ghost.className = 'slot ghost';
+          list.appendChild(ghost);
+        }
+        col.appendChild(list);
+        el.week.appendChild(col);
+      });
+      var note = document.createElement('p');
+      note.className = 'loadingnote';
+      note.textContent = t('book.loading');
+      el.week.parentNode.insertBefore(note, el.week.nextSibling);
+    }, 250);
+
+    function stopLoading() {
+      clearTimeout(slow);
+      var note = document.querySelector('.loadingnote');
+      if (note) note.remove();
+    }
+
     return busyFor(days).then(function (busy) {
+      stopLoading();
       if (token !== renderToken) return;
       var minutes = currentType().minutes;
       var total = 0;
@@ -1157,6 +1213,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
 
       el.weekempty.hidden = total > 0;
     }).catch(function (err) {
+      stopLoading();
       if (token !== renderToken) return;
       el.week.innerHTML = '';
       el.weekempty.hidden = false;
@@ -1259,6 +1316,7 @@ footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
     el.refresh.disabled = true;
     el.refresh.classList.add('spinning');
     clearBusyCache();               // force a fresh request
+    wantFresh = true;               // and bypass the server's cache too
     var keep = state.selectedSlot;
     render().then(function () {
       // If the slot the patient had chosen has just been taken, drop it.
