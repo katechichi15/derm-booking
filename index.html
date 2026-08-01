@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dr. Elena Marchetti — Dermatology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EFEDF4;
+  --card:#FFFFFF;
+  --ink:#191828;
+  --ink-soft:#565471;
+  --line:#D8D4E4;
+  --uv:#5A32E0;
+  --uv-soft:#EEE9FF;
+  --glow:#B7A0FF;
+  --closed:#9C99AE;
+
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --pad:clamp(20px,5vw,80px);
+  --r-btn:999px;
+  --r-card:16px;
+  --r-input:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--body);font-size:17px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:-.02em;margin:0}
+a{color:inherit}
+button{font:inherit}
+
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--uv);margin:0 0 18px
+}
+.btn{
+  display:inline-block;background:var(--ink);color:#fff;border:0;border-radius:var(--r-btn);
+  padding:15px 30px;font-family:var(--mono);font-size:13px;letter-spacing:.06em;
+  text-transform:uppercase;text-decoration:none;cursor:pointer;
+  box-shadow:0 2px 10px rgba(25,24,40,.18);
+  transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.btn:hover{background:var(--uv);transform:translateY(-1px);box-shadow:0 6px 18px rgba(90,50,224,.28)}
+.btn:active{transform:translateY(0)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+:focus-visible{outline:2px solid var(--uv);outline-offset:3px}
+
+/* ---------- nav ---------- */
+.nav{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:22px;
+  padding:14px var(--pad);background:rgba(239,237,244,.86);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+}
+.nav .mark{font-family:var(--display);font-weight:800;letter-spacing:-.03em;font-size:18px}
+.nav .mark span{color:var(--uv)}
+.nav .links{margin-left:auto;display:flex;gap:20px;align-items:center}
+.nav a{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:var(--ink-soft)}
+.nav a:hover{color:var(--uv)}
+.nav a.btn{color:#fff;padding:11px 22px}
+
+.lang{display:flex;border:1px solid var(--line);border-radius:var(--r-btn);overflow:hidden;background:#fff}
+.lang button{
+  display:flex;align-items:center;gap:7px;border:0;background:#fff;color:var(--ink-soft);
+  cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:7px 12px;
+}
+.lang button + button{border-left:1px solid var(--line)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.lang svg{width:19px;height:13px;display:block;border:1px solid rgba(0,0,0,.18);border-radius:2px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-inner{padding:clamp(56px,9vw,120px) var(--pad) clamp(64px,10vw,130px);max-width:1100px}
+.hero h1{font-size:clamp(40px,7vw,86px);line-height:.99;max-width:15ch;margin:0 0 26px}
+.lede{font-size:clamp(17px,1.5vw,21px);color:var(--ink-soft);max-width:54ch;margin:0 0 34px}
+
+.lamp,.lamp-text{position:absolute;inset:0;pointer-events:none}
+.lamp{
+  opacity:0;transition:opacity .4s ease;
+  background:
+    radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(90,50,224,.42), rgba(90,50,224,.18) 45%, transparent 72%),
+    repeating-radial-gradient(circle at 12% 30%, rgba(183,160,255,.55) 0 1.2px, transparent 1.2px 26px),
+    repeating-radial-gradient(circle at 68% 74%, rgba(183,160,255,.4) 0 1px, transparent 1px 19px);
+  -webkit-mask-image:radial-gradient(circle 190px at var(--mx,50%) var(--my,50%), #000 0 55%, transparent 100%);
+  mask-image:radial-gradient(circle 190px at var(--mx,50%) var(--my,50%), #000 0 55%, transparent 100%);
+}
+.hero.lit .lamp{opacity:1}
+.lamp-text .hero-inner *{visibility:hidden}
+.lamp-text h1{visibility:visible;color:var(--uv);text-shadow:0 0 26px rgba(183,160,255,.9)}
+
+/* ---------- about: text left, photo right, credentials underneath ---------- */
+.about{
+  padding:clamp(56px,8vw,110px) var(--pad);
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(150px,24vw,340px);
+  gap:clamp(24px,3.5vw,52px);align-items:start;
+  border-bottom:1px solid var(--line);
+}
+.about h2{font-size:clamp(28px,3.6vw,44px);line-height:1.06;margin:0 0 20px;max-width:18ch}
+.about p{color:var(--ink-soft);max-width:60ch;margin:0 0 16px}
+
+.portrait{
+  margin:0;width:100%;aspect-ratio:4/5;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+}
+.portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portrait .monogram{font-family:var(--display);font-size:clamp(30px,5vw,64px);font-weight:800;color:var(--uv-soft)}
+.portrait figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:rgba(255,255,255,.92);
+  border-top:1px solid var(--line);font-family:var(--mono);font-size:clamp(8px,.9vw,10px);
+  letter-spacing:.06em;text-transform:uppercase;color:var(--closed);line-height:1.5
+}
+
+.facts{
+  grid-column:1 / -1;margin:clamp(30px,4vw,52px) 0 0;padding:26px 0 0;list-style:none;
+  border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(28px,5vw,64px);
+}
+.facts li{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}
+.facts .k{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--uv)}
+.facts .v{color:var(--ink)}
+
+/* ---------- booking ---------- */
+.book{padding:clamp(56px,8vw,110px) var(--pad) clamp(70px,9vw,120px);scroll-margin-top:70px}
+.book h2{font-size:clamp(30px,4vw,46px);line-height:1.05;margin:0 0 26px}
+
+.hours{margin:0 0 40px;padding:0}
+.hours .title{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--closed);margin:0 0 12px}
+.hrow{display:grid;grid-template-columns:120px auto;gap:20px;padding:7px 0;align-items:start}
+.hrow + .hrow{border-top:1px dashed var(--line)}
+.hdays{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.htimes{display:flex;flex-direction:column;gap:3px;font-family:var(--mono);font-size:13.5px;color:var(--ink-soft)}
+.htimes .shut{color:var(--closed)}
+.hours-wrap{display:inline-block;min-width:min(340px,100%)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden}
+
+.step{display:flex;align-items:baseline;gap:12px;padding:18px 18px 4px}
+.step .n{
+  font-family:var(--mono);font-size:11px;color:#fff;background:var(--uv);
+  width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;transform:translateY(2px)
+}
+.step .label{font-family:var(--display);font-weight:700;font-size:17px}
+
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px 18px 20px}
+.choice{
+  position:relative;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-card);
+  padding:16px 16px 16px 46px;text-align:left;cursor:pointer;color:var(--ink);
+  box-shadow:0 1px 2px rgba(25,24,40,.05);
+  transition:border-color .16s ease,background .16s ease,transform .16s ease,box-shadow .16s ease;
+}
+.choice:hover{border-color:var(--uv);background:var(--uv-soft);transform:translateY(-1px);box-shadow:0 4px 12px rgba(90,50,224,.14)}
+.choice::before{
+  content:"";position:absolute;left:17px;top:19px;width:16px;height:16px;border-radius:50%;
+  border:1.5px solid var(--line);background:#fff;transition:border-color .16s ease,box-shadow .16s ease;
+}
+.choice[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff;box-shadow:0 6px 16px rgba(25,24,40,.22)}
+.choice[aria-pressed="true"]::before{border-color:#fff;box-shadow:inset 0 0 0 3px var(--ink),inset 0 0 0 9px #fff}
+.choice .name{display:block;font-family:var(--display);font-weight:700;font-size:17px}
+.choice .len{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--uv);margin-top:4px}
+.choice[aria-pressed="true"] .len{color:var(--glow)}
+
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 18px 0}
+.toolbar label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--closed)}
+select,input,textarea{
+  font-family:var(--body);font-size:15px;color:var(--ink);background:#fff;
+  border:1.5px solid var(--line);border-radius:var(--r-input);padding:10px 12px;
+}
+select{font-family:var(--mono);font-size:13px;cursor:pointer}
+select:hover{border-color:var(--uv)}
+.jump{
+  border:1.5px solid var(--uv);background:#fff;color:var(--uv);border-radius:var(--r-btn);cursor:pointer;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:11px 18px;
+  transition:background .16s ease,color .16s ease,transform .16s ease;
+}
+.jump:hover:not([disabled]){background:var(--uv);color:#fff;transform:translateY(-1px)}
+.jump[disabled]{border-color:var(--line);color:var(--line);cursor:not-allowed}
+.refresh{
+  display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;
+  border:1.5px solid var(--line);background:#fff;border-radius:50%;cursor:pointer;color:var(--ink);
+  transition:border-color .16s ease,color .16s ease,background .16s ease;
+}
+.refresh svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.refresh:hover:not([disabled]){border-color:var(--uv);color:var(--uv);background:var(--uv-soft)}
+.refresh[disabled]{color:var(--closed);cursor:default}
+.refresh.spinning svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.weeknav{margin-left:auto;display:flex;align-items:center;gap:10px}
+.weeknav .range{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);min-width:180px;text-align:center}
+.arrow{
+  width:40px;height:40px;border:1.5px solid var(--line);background:#fff;border-radius:50%;
+  cursor:pointer;color:var(--ink);line-height:1;transition:border-color .16s ease,color .16s ease,background .16s ease;
+}
+.arrow:hover:not([disabled]){border-color:var(--uv);color:var(--uv);background:var(--uv-soft)}
+.arrow[disabled]{color:var(--line);cursor:not-allowed}
+
+.tznote{
+  display:flex;align-items:center;gap:8px;padding:14px 18px 4px;margin:0;
+  font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);
+}
+.tznote b{background:var(--uv-soft);color:var(--uv);padding:4px 10px;border-radius:var(--r-btn);font-weight:500}
+
+.week{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:14px 18px 20px}
+.col{min-width:0;display:flex;flex-direction:column}
+.colhead{padding:10px 6px 12px;text-align:center}
+.col.today .colhead{background:var(--uv-soft);border-radius:var(--r-input)}
+.colhead .dow{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--closed)}
+.colhead .num{display:block;font-family:var(--display);font-size:24px;font-weight:700;line-height:1.25}
+.colhead .free{display:block;font-family:var(--mono);font-size:10.5px;color:var(--uv)}
+.colhead .free.zero{color:var(--closed)}
+.collist{display:flex;flex-direction:column;gap:7px}
+.slot{
+  font-family:var(--mono);font-size:13.5px;font-weight:500;padding:11px 4px;background:#fff;
+  border:1.5px solid var(--line);border-radius:var(--r-input);cursor:pointer;color:var(--ink);width:100%;
+  box-shadow:0 1px 2px rgba(25,24,40,.05);
+  transition:border-color .16s ease,color .16s ease,background .16s ease,transform .16s ease,box-shadow .16s ease;
+}
+.slot:hover{border-color:var(--uv);color:var(--uv);background:var(--uv-soft);transform:translateY(-1px);box-shadow:0 4px 10px rgba(90,50,224,.16)}
+.slot[aria-pressed="true"]{background:var(--uv);border-color:var(--uv);color:#fff;box-shadow:0 4px 12px rgba(90,50,224,.3)}
+.none{font-family:var(--mono);font-size:11px;color:var(--closed);text-align:center;padding:12px 4px}
+.weekempty{padding:6px 18px 24px;font-family:var(--mono);font-size:13px;color:var(--closed);margin:0}
+
+.form{border-top:1px solid var(--line);padding:0 0 26px;margin-top:6px}
+.form .body{padding:14px 18px 0}
+.form .chosen{font-family:var(--mono);font-size:13px;color:var(--uv);margin:0 0 20px;line-height:1.7;white-space:pre-line}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--closed)}
+.field textarea{min-height:88px;resize:vertical}
+.field .err{font-family:var(--mono);font-size:11px;color:#C0392B;min-height:14px}
+.field input[aria-invalid="true"],.field textarea[aria-invalid="true"]{border-color:#C0392B}
+.form-actions{display:flex;align-items:center;gap:16px;margin-top:6px;flex-wrap:wrap}
+.form-actions .note{font-family:var(--mono);font-size:11px;color:var(--closed)}
+
+.done{border-top:1px solid var(--line);padding:30px 18px}
+.done h3{font-size:24px;margin:0 0 10px}
+.done .receipt{font-family:var(--mono);font-size:13.5px;line-height:1.9;color:var(--ink-soft);margin:0 0 22px}
+.done .receipt b{color:var(--ink);font-weight:500}
+
+footer{padding:30px var(--pad) 50px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--closed);
+  display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between}
+
+@media (max-width:760px){
+  .facts{grid-template-columns:1fr}
+}
+/* phone: single column, photo last */
+@media (max-width:560px){
+  .about{display:flex;flex-direction:column;gap:26px}
+  .about-text{order:1}
+  .facts{order:2;margin-top:4px}
+  .portrait{order:3;max-width:320px;align-self:center}
+}
+@media (max-width:760px){
+  .week{grid-template-columns:1fr;gap:4px}
+  .col{border-bottom:1px solid var(--line);padding-bottom:12px}
+  .colhead{display:flex;align-items:baseline;gap:10px;text-align:left;padding-left:2px}
+  .colhead .num{font-size:19px}
+  .colhead .free{margin-left:auto}
+  .collist{flex-direction:row;flex-wrap:wrap}
+  .slot{width:auto;flex:0 0 auto;padding:10px 14px}
+  .choices{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .weeknav{margin-left:0;width:100%;justify-content:space-between}
+  .nav{gap:12px}
+  .nav .links a:not(.btn){display:none}
+  .lang button span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="mark">Marchetti<span>.</span></div>
+  <nav class="links">
+    <a href="#about" data-i18n="nav.about">About</a>
+    <a href="#book" data-i18n="nav.availability">Availability</a>
+
+    <div class="lang" id="lang">
+      <button type="button" data-lang="en" aria-pressed="true" aria-label="English">
+        <svg viewBox="0 0 60 30" aria-hidden="true">
+          <rect width="60" height="30" fill="#012169"/>
+          <path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6"/>
+          <path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" stroke-width="3"/>
+          <path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10"/>
+          <path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6"/>
+        </svg><span>EN</span>
+      </button>
+      <button type="button" data-lang="el" aria-pressed="false" aria-label="Ελληνικά">
+        <svg viewBox="0 0 27 18" aria-hidden="true">
+          <rect width="27" height="18" fill="#0D5EAF"/>
+          <g fill="#fff"><rect y="2" width="27" height="2"/><rect y="6" width="27" height="2"/><rect y="10" width="27" height="2"/><rect y="14" width="27" height="2"/></g>
+          <rect width="10" height="10" fill="#0D5EAF"/>
+          <path d="M4,0 h2 v10 h-2 z M0,4 h10 v2 H0 z" fill="#fff"/>
+        </svg><span>ΕΛ</span>
+      </button>
+      <button type="button" data-lang="ru" aria-pressed="false" aria-label="Русский">
+        <svg viewBox="0 0 27 18" aria-hidden="true">
+          <rect width="27" height="6" fill="#fff"/>
+          <rect y="6" width="27" height="6" fill="#0039A6"/>
+          <rect y="12" width="27" height="6" fill="#D52B1E"/>
+        </svg><span>RU</span>
+      </button>
+    </div>
+
+    <a class="btn" href="#book" data-i18n="nav.book">Book</a>
+  </nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="lamp" aria-hidden="true"></div>
+  <div class="lamp-text" aria-hidden="true">
+    <div class="hero-inner">
+      <p class="eyebrow">·</p>
+      <h1 data-i18n="hero.h1">Your skin keeps the whole record.</h1>
+      <p class="lede">·</p>
+      <span class="btn">·</span>
+    </div>
+  </div>
+
+  <div class="hero-inner">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Dermatology — medical, surgical, cosmetic</p>
+    <h1 data-i18n="hero.h1">Your skin keeps the whole record.</h1>
+    <p class="lede" data-i18n="hero.lede">Dr. Elena Marchetti has spent fourteen years reading it: moles that changed shape, rashes that won't settle, acne that outlasted your teens, hair that started thinning. Consultations in person in Limassol, or online.</p>
+    <a class="btn" href="#book" id="heroCta" data-i18n="hero.cta">Book appointment</a>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="about" id="about">
+  <div class="about-text">
+    <p class="eyebrow" data-i18n="about.eyebrow">About the doctor</p>
+    <h2 data-i18n="about.h2">A dermatologist who explains what she's looking at.</h2>
+    <p data-i18n="about.p1">Elena trained in general medicine before specialising in dermatology, and still treats the consultation as the main event: what the skin looks like today, what it looked like six months ago, and what changed in between. Diagnostic work runs alongside minor surgery — biopsies, excisions, cryotherapy — in the same room, usually in the same visit.</p>
+    <p data-i18n="about.p2">If a biopsy is needed, results are discussed by phone within two weeks rather than left to a letter.</p>
+  </div>
+
+  <figure class="portrait">
+    <span class="monogram">EM</span>
+    <!-- Replace the monogram above with: <img src="doctor.jpg" alt="Dr. Elena Marchetti"> -->
+    <figcaption data-i18n="about.photo">Photo slot — drop in a headshot</figcaption>
+  </figure>
+
+  <ul class="facts">
+    <li><span class="k" data-i18n="about.k1">Specialty</span><span class="v" data-i18n="about.v1">Medical, surgical &amp; cosmetic dermatology</span></li>
+    <li><span class="k" data-i18n="about.k2">Experience</span><span class="v" data-i18n="about.v2">14 years, 9 of them in hospital practice</span></li>
+    <li><span class="k" data-i18n="about.k3">Common visits</span><span class="v" data-i18n="about.v3">Mole checks, acne, eczema, psoriasis, rosacea, hair loss</span></li>
+    <li><span class="k" data-i18n="about.k4">In-clinic</span><span class="v" data-i18n="about.v4">Dermoscopy, biopsy, cryotherapy, minor excision</span></li>
+    <li><span class="k" data-i18n="about.k5">Languages</span><span class="v" data-i18n="about.v5">Greek, English, Russian</span></li>
+  </ul>
+</section>
+
+<!-- ================= BOOKING ================= -->
+<section class="book" id="book">
+  <p class="eyebrow" data-i18n="book.eyebrow">Availability</p>
+  <h2 data-i18n="book.h2">Book an appointment.</h2>
+
+  <div class="hours-wrap">
+    <div class="hours" id="hours">
+      <p class="title" data-i18n="hours.title">Opening hours</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="step"><span class="n">1</span><span class="label" data-i18n="book.step1">Choose how long you need</span></div>
+    <div class="choices" id="types" role="group" aria-label="Appointment length"></div>
+
+    <div class="step"><span class="n">2</span><span class="label" data-i18n="book.step2">In person or online</span></div>
+    <div class="choices" id="modes" role="group" aria-label="Appointment format"></div>
+
+    <div class="step"><span class="n">3</span><span class="label" data-i18n="book.step3">Pick a time</span></div>
+    <div class="toolbar">
+      <label for="month" data-i18n="book.month">Month</label>
+      <select id="month"></select>
+      <button class="jump" id="jump" type="button" data-i18n="book.nextAvail">Next available</button>
+      <button class="refresh" id="refresh" type="button" data-i18n-aria="book.refresh" aria-label="Refresh availability">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
+      </button>
+      <div class="weeknav">
+        <button class="arrow" id="prev" data-i18n-aria="book.prev" aria-label="Previous week">&larr;</button>
+        <span class="range" id="range"></span>
+        <button class="arrow" id="next" data-i18n-aria="book.next" aria-label="Next week">&rarr;</button>
+      </div>
+    </div>
+    <p class="tznote"><b id="tzBadge">Cyprus time (GMT+3)</b></p>
+
+    <div class="week" id="week"></div>
+    <p class="weekempty" id="weekempty" hidden data-i18n="slots.none">No open times this week. Use “Next available” to jump to the first opening.</p>
+
+    <form class="form" id="form" hidden novalidate>
+      <div class="step"><span class="n">4</span><span class="label" data-i18n="form.title">Your details</span></div>
+      <div class="body">
+        <p class="chosen" id="chosen"></p>
+        <div class="grid2">
+          <div class="field">
+            <label for="first" data-i18n="form.first">First name</label>
+            <input id="first" name="first" autocomplete="given-name">
+            <span class="err" id="err-first"></span>
+          </div>
+          <div class="field">
+            <label for="last" data-i18n="form.last">Last name</label>
+            <input id="last" name="last" autocomplete="family-name">
+            <span class="err" id="err-last"></span>
+          </div>
+          <div class="field">
+            <label for="email" data-i18n="form.email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email">
+            <span class="err" id="err-email"></span>
+          </div>
+          <div class="field">
+            <label for="phone" data-i18n="form.phone">Phone</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel">
+            <span class="err" id="err-phone"></span>
+          </div>
+          <div class="field">
+            <label for="idnum" data-i18n="form.id">ID or passport number</label>
+            <input id="idnum" name="idnum" autocomplete="off">
+            <span class="err" id="err-idnum"></span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="notes" data-i18n="form.notes">Notes for the doctor (optional)</label>
+          <textarea id="notes" name="notes" data-i18n-ph="form.notesPh" placeholder="What you'd like looked at, how long it's been there, anything you're already using on it."></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn" type="submit" data-i18n="form.submit">Confirm appointment</button>
+          <span class="note" data-i18n="form.note">No payment is taken now.</span>
+        </div>
+      </div>
+    </form>
+
+    <div class="done" id="done" hidden>
+      <h3 data-i18n="done.title">Appointment confirmed</h3>
+      <p class="receipt" id="receipt"></p>
+      <button class="btn" id="again" type="button" data-i18n="done.again">Book another time</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Dr. Elena Marchetti — <span data-i18n="footer.spec">Dermatology</span></span>
+  <span>hello@marchetti-derm.example · +357 00 000 000</span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     1. CLINIC CONFIGURATION — edit here, not in the code below.
+        The opening-hours block on the page is generated from this, so it
+        can never drift out of step with what the calendar actually offers.
+     ===================================================================== */
+  var CONFIG = {
+    timezone: 'Europe/Nicosia',
+
+    // Weekday index: 0 = Sunday … 6 = Saturday. Empty array = closed.
+    workingHours: {
+      0: [],                                          // Sunday   — closed
+      1: [['09:00', '13:00'], ['14:00', '18:00']],
+      2: [['09:00', '13:00'], ['14:00', '18:00']],
+      3: [['09:00', '13:00'], ['14:00', '18:00']],
+      4: [['09:00', '13:00'], ['14:00', '18:00']],
+      5: [['09:00', '13:00'], ['14:00', '18:00']],
+      6: []                                           // Saturday — closed
+    },
+    visibleDays: [1, 2, 3, 4, 5],       // which weekdays get a column
+
+    unavailableThrough: null,           // set to 'YYYY-MM-DD' to block everything up to a date
+    holidays: [],                       // one-off closures, 'YYYY-MM-DD'
+    bufferMinutes: 0,                   // clean-up time added after each visit
+    bookableWeeks: 12,
+
+    // Hard block. Nothing may ever be booked between these times, whatever
+    // the working hours above say. Overnight windows are fine (22:00 -> 08:00).
+    hardBlock: { from: '22:00', to: '08:00' },
+
+    appointmentTypes: [
+      { id: 'standard', minutes: 30 },
+      { id: 'extended', minutes: 45 }
+    ],
+    modes: ['inperson', 'online']       // first one is the default
+  };
+
+  /* =====================================================================
+     2. AVAILABILITY ADAPTER
+     Everything the calendar shows comes through this object, so wiring up
+     Google Calendar means replacing two functions and nothing else.
+
+     getBusy(from, to, days) -> Promise<[{start: Date, end: Date}]>
+       `from`/`to` are real instants; `days` is the civil-day list and
+       exists only for the stand-in below — a real version ignores it.
+       Real version: call YOUR server (never Google directly from the
+       browser — the credentials would be public), which does:
+         POST https://www.googleapis.com/calendar/v3/freeBusy
+         { timeMin, timeMax, items: [{ id: 'doctor@clinic.com' }] }
+
+     createBooking(payload) -> Promise<{ok: boolean, error?: string}>
+       Real version: POST to your server, which inserts the event with
+         POST https://www.googleapis.com/calendar/v3/calendars/{id}/events
+       Insert server-side so two patients can't take the same slot.
+     ===================================================================== */
+  // Paste the Apps Script web app URL here (ends in /exec).
+  var API_URL = 'https://script.google.com/macros/s/AKfycbxG_lXjkUJWdTsjcSsW5b-HS93C-qSA3KhamdGGC81aEoRQSUz609Mxeb7fyDVeurqY/exec';
+
+  // Set to true to preview the site with invented availability and no
+  // backend at all. Set to false to use the real calendar.
+  var USE_MOCK = false;
+
+  var sessionBookings = [];
+
+  var Availability = {
+    getBusy: function (from, to, days) {
+      if (USE_MOCK) return Promise.resolve(mockBusy(days).concat(sessionBookings));
+
+      return fetch(API_URL + '?from=' + encodeURIComponent(from.toISOString()) +
+                   '&to=' + encodeURIComponent(to.toISOString()))
+        .then(function (r) { return r.json(); })
+        .then(function (rows) {
+          if (rows && rows.error) throw new Error(rows.error);
+          return rows.map(function (b) {
+            return { start: new Date(b.start), end: new Date(b.end) };
+          });
+        });
+    },
+
+    createBooking: function (payload) {
+      if (USE_MOCK) {
+        sessionBookings.push({ start: payload.start, end: payload.end });
+        return Promise.resolve({ ok: true });
+      }
+
+      // Content-Type is text/plain on purpose. Sending application/json
+      // would make the browser send a CORS preflight request first, and
+      // Apps Script cannot answer those. The script parses the body as
+      // JSON regardless of the declared type.
+      return fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          start: payload.start.toISOString(),
+          end: payload.end.toISOString(),
+          timezone: payload.timezone,
+          type: payload.type, mode: payload.mode,
+          first: payload.first, last: payload.last,
+          email: payload.email, phone: payload.phone,
+          idNumber: payload.idNumber,
+          notes: payload.notes, locale: payload.locale
+        })
+      }).then(function (r) { return r.json(); });
+    }
+  };
+
+  function mockBusy(days) {
+    var out = [];
+    (days || []).forEach(function (c) {
+      (CONFIG.workingHours[c.getUTCDay()] || []).forEach(function (b) {
+        for (var m = toMinutes(b[0]); m < toMinutes(b[1]); m += 30) {
+          if (hash(dayKey(c) + '@' + m) % 10 < 3) {
+            out.push({ start: instant(c, m), end: instant(c, m + 30) });
+          }
+        }
+      });
+    });
+    return out;
+  }
+  function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100000; return h; }
+
+  /* =====================================================================
+     3. TRANSLATIONS
+     ===================================================================== */
+  var I18N = {
+    en: {
+      locale: 'en-GB',
+      'nav.about': 'About', 'nav.availability': 'Availability', 'nav.book': 'Book',
+      'hero.eyebrow': 'Dermatology — medical, surgical, cosmetic',
+      'hero.h1': 'Your skin keeps the whole record.',
+      'hero.lede': "Dr. Elena Marchetti has spent fourteen years reading it: moles that changed shape, rashes that won't settle, acne that outlasted your teens, hair that started thinning. Consultations in person in Limassol, or online.",
+      'hero.cta': 'Book appointment',
+      'about.photo': 'Photo slot — drop in a headshot',
+      'about.eyebrow': 'About the doctor',
+      'about.h2': "A dermatologist who explains what she's looking at.",
+      'about.p1': 'Elena trained in general medicine before specialising in dermatology, and still treats the consultation as the main event: what the skin looks like today, what it looked like six months ago, and what changed in between. Diagnostic work runs alongside minor surgery — biopsies, excisions, cryotherapy — in the same room, usually in the same visit.',
+      'about.p2': 'If a biopsy is needed, results are discussed by phone within two weeks rather than left to a letter.',
+      'about.k1': 'Specialty', 'about.v1': 'Medical, surgical & cosmetic dermatology',
+      'about.k2': 'Experience', 'about.v2': '14 years, 9 of them in hospital practice',
+      'about.k3': 'Common visits', 'about.v3': 'Mole checks, acne, eczema, psoriasis, rosacea, hair loss',
+      'about.k4': 'In-clinic', 'about.v4': 'Dermoscopy, biopsy, cryotherapy, minor excision',
+      'about.k5': 'Languages', 'about.v5': 'Greek, English, Russian',
+      'hours.title': 'Opening hours', 'hours.closed': 'Closed',
+      'book.eyebrow': 'Availability', 'book.h2': 'Book an appointment.',
+      'book.step1': 'Choose how long you need', 'book.step2': 'In person or online', 'book.step3': 'Pick a time',
+      'book.month': 'Month', 'book.prev': 'Previous week', 'book.next': 'Next week',
+      'book.nextAvail': 'Next available', 'book.searching': 'Searching…',
+      'book.refresh': 'Refresh availability',
+      'book.tzBadge': 'Cyprus time',
+      'type.standard': 'Standard consultation', 'type.extended': 'Extended consultation',
+      'mode.inperson': 'In person', 'mode.inpersonNote': 'At the clinic in Limassol',
+      'mode.online': 'Online', 'mode.onlineNote': 'Video call — link emailed after booking',
+      'unit.min': 'minutes', 'unit.minutes': 'minutes',
+      'slots.none': 'No open times this week. Use “Next available” to jump to the first opening.',
+      'slots.nothing': 'No openings in the next 12 weeks. Please call the clinic.',
+      'slots.dayEmpty': 'No times',
+      'form.title': 'Your details', 'form.first': 'First name', 'form.last': 'Last name',
+      'form.email': 'Email', 'form.phone': 'Phone', 'form.id': 'ID or passport number',
+      'form.notes': 'Notes for the doctor (optional)',
+      'form.notesPh': "What you'd like looked at, how long it's been there, anything you're already using on it.",
+      'form.submit': 'Confirm appointment', 'form.note': 'No payment is taken now.',
+      'err.first': 'Enter your first name', 'err.last': 'Enter your last name',
+      'err.email': 'Enter an email we can reach you at',
+      'err.phone': 'Enter a phone number with at least 7 digits',
+      'done.title': 'Appointment confirmed', 'done.again': 'Book another time',
+      'done.notes': 'Notes', 'done.id': 'ID',
+      'footer.spec': 'Dermatology',
+      free: function (n) { return n + ' open'; }
+    },
+
+    el: {
+      locale: 'el-GR',
+      'nav.about': 'Η γιατρός', 'nav.availability': 'Διαθεσιμότητα', 'nav.book': 'Ραντεβού',
+      'hero.eyebrow': 'Δερματολογία — ιατρική, χειρουργική, αισθητική',
+      'hero.h1': 'Το δέρμα κρατάει όλο το ιστορικό.',
+      'hero.lede': 'Η Δρ. Έλενα Μαρκέτι το διαβάζει εδώ και δεκατέσσερα χρόνια: ελιές που άλλαξαν σχήμα, εξανθήματα που δεν υποχωρούν, ακμή που κράτησε μετά την εφηβεία, μαλλιά που αραιώνουν. Ραντεβού στο ιατρείο στη Λεμεσό ή online.',
+      'hero.cta': 'Κλείστε ραντεβού',
+      'about.photo': 'Θέση φωτογραφίας — προσθέστε πορτρέτο',
+      'about.eyebrow': 'Σχετικά με τη γιατρό',
+      'about.h2': 'Μια δερματολόγος που εξηγεί τι βλέπει.',
+      'about.p1': 'Η Έλενα εκπαιδεύτηκε στη γενική ιατρική πριν ειδικευτεί στη δερματολογία και εξακολουθεί να θεωρεί την εξέταση το πιο σημαντικό μέρος: πώς είναι το δέρμα σήμερα, πώς ήταν πριν από έξι μήνες και τι άλλαξε στο μεταξύ. Η διαγνωστική δουλειά γίνεται μαζί με μικροεπεμβάσεις — βιοψίες, εκτομές, κρυοθεραπεία — στον ίδιο χώρο και συνήθως στην ίδια επίσκεψη.',
+      'about.p2': 'Αν χρειαστεί βιοψία, τα αποτελέσματα συζητούνται τηλεφωνικά μέσα σε δύο εβδομάδες, χωρίς να περιμένετε επιστολή.',
+      'about.k1': 'Ειδικότητα', 'about.v1': 'Ιατρική, χειρουργική και αισθητική δερματολογία',
+      'about.k2': 'Εμπειρία', 'about.v2': '14 χρόνια, εκ των οποίων 9 σε νοσοκομείο',
+      'about.k3': 'Συχνές επισκέψεις', 'about.v3': 'Έλεγχος σπίλων, ακμή, έκζεμα, ψωρίαση, ροδόχρους ακμή, τριχόπτωση',
+      'about.k4': 'Στο ιατρείο', 'about.v4': 'Δερματοσκόπηση, βιοψία, κρυοθεραπεία, μικροεκτομή',
+      'about.k5': 'Γλώσσες', 'about.v5': 'Ελληνικά, Αγγλικά, Ρωσικά',
+      'hours.title': 'Ωράριο', 'hours.closed': 'Κλειστά',
+      'book.eyebrow': 'Διαθεσιμότητα', 'book.h2': 'Κλείστε ραντεβού.',
+      'book.step1': 'Επιλέξτε διάρκεια', 'book.step2': 'Με φυσική παρουσία ή online', 'book.step3': 'Επιλέξτε ώρα',
+      'book.month': 'Μήνας', 'book.prev': 'Προηγούμενη εβδομάδα', 'book.next': 'Επόμενη εβδομάδα',
+      'book.nextAvail': 'Επόμενη διαθέσιμη', 'book.searching': 'Αναζήτηση…',
+      'book.refresh': 'Ανανέωση διαθεσιμότητας',
+      'book.tzBadge': 'Ώρα Κύπρου',
+      'type.standard': 'Τυπική εξέταση', 'type.extended': 'Εκτεταμένη εξέταση',
+      'mode.inperson': 'Με φυσική παρουσία', 'mode.inpersonNote': 'Στο ιατρείο στη Λεμεσό',
+      'mode.online': 'Online', 'mode.onlineNote': 'Βιντεοκλήση — ο σύνδεσμος στέλνεται με email',
+      'unit.min': 'λεπτά', 'unit.minutes': 'λεπτά',
+      'slots.none': 'Καμία διαθέσιμη ώρα αυτή την εβδομάδα. Πατήστε «Επόμενη διαθέσιμη».',
+      'slots.nothing': 'Καμία διαθεσιμότητα τις επόμενες 12 εβδομάδες. Τηλεφωνήστε στο ιατρείο.',
+      'slots.dayEmpty': 'Καμία ώρα',
+      'form.title': 'Τα στοιχεία σας', 'form.first': 'Όνομα', 'form.last': 'Επώνυμο',
+      'form.email': 'Email', 'form.phone': 'Τηλέφωνο', 'form.id': 'Αριθμός ταυτότητας ή διαβατηρίου',
+      'form.notes': 'Σημειώσεις για τη γιατρό (προαιρετικό)',
+      'form.notesPh': 'Τι θέλετε να εξεταστεί, πόσο καιρό υπάρχει, τι χρησιμοποιείτε ήδη.',
+      'form.submit': 'Επιβεβαίωση ραντεβού', 'form.note': 'Δεν γίνεται πληρωμή τώρα.',
+      'err.first': 'Συμπληρώστε το όνομά σας', 'err.last': 'Συμπληρώστε το επώνυμό σας',
+      'err.email': 'Συμπληρώστε ένα έγκυρο email',
+      'err.phone': 'Συμπληρώστε τηλέφωνο με τουλάχιστον 7 ψηφία',
+      'done.title': 'Το ραντεβού επιβεβαιώθηκε', 'done.again': 'Κλείστε άλλη ώρα',
+      'done.notes': 'Σημειώσεις', 'done.id': 'Ταυτότητα',
+      'footer.spec': 'Δερματολογία',
+      free: function (n) { return n === 1 ? '1 ώρα' : n + ' ώρες'; }
+    },
+
+    ru: {
+      locale: 'ru-RU',
+      'nav.about': 'О враче', 'nav.availability': 'Расписание', 'nav.book': 'Запись',
+      'hero.eyebrow': 'Дерматология — лечебная, хирургическая, эстетическая',
+      'hero.h1': 'Кожа хранит всю историю.',
+      'hero.lede': 'Доктор Елена Маркетти читает её уже четырнадцать лет: родинки, изменившие форму, сыпь, которая не проходит, акне, оставшееся после подросткового возраста, редеющие волосы. Приём в клинике в Лимасоле или онлайн.',
+      'hero.cta': 'Записаться на приём',
+      'about.photo': 'Место для фото — добавьте портрет',
+      'about.eyebrow': 'О враче',
+      'about.h2': 'Дерматолог, который объясняет, что видит.',
+      'about.p1': 'Елена начинала с общей медицины и только потом специализировалась на дерматологии. Главным она по-прежнему считает сам приём: как кожа выглядит сегодня, как выглядела полгода назад и что изменилось. Диагностика идёт вместе с малой хирургией — биопсия, иссечение, криотерапия — в том же кабинете и обычно в тот же визит.',
+      'about.p2': 'Если нужна биопсия, результаты обсуждаются по телефону в течение двух недель, а не остаются в письме.',
+      'about.k1': 'Специализация', 'about.v1': 'Лечебная, хирургическая и эстетическая дерматология',
+      'about.k2': 'Опыт', 'about.v2': '14 лет, из них 9 в больнице',
+      'about.k3': 'Частые обращения', 'about.v3': 'Проверка родинок, акне, экзема, псориаз, розацеа, выпадение волос',
+      'about.k4': 'В клинике', 'about.v4': 'Дерматоскопия, биопсия, криотерапия, малое иссечение',
+      'about.k5': 'Языки', 'about.v5': 'Греческий, английский, русский',
+      'hours.title': 'Часы работы', 'hours.closed': 'Закрыто',
+      'book.eyebrow': 'Расписание', 'book.h2': 'Запишитесь на приём.',
+      'book.step1': 'Выберите длительность приёма', 'book.step2': 'Очно или онлайн', 'book.step3': 'Выберите время',
+      'book.month': 'Месяц', 'book.prev': 'Предыдущая неделя', 'book.next': 'Следующая неделя',
+      'book.nextAvail': 'Ближайшее время', 'book.searching': 'Поиск…',
+      'book.refresh': 'Обновить расписание',
+      'book.tzBadge': 'Время Кипра',
+      'type.standard': 'Стандартный приём', 'type.extended': 'Расширенный приём',
+      'mode.inperson': 'Очно', 'mode.inpersonNote': 'В клинике в Лимасоле',
+      'mode.online': 'Онлайн', 'mode.onlineNote': 'Видеозвонок — ссылка придёт на email',
+      'unit.min': 'минут', 'unit.minutes': 'минут',
+      'slots.none': 'На этой неделе свободных окон нет. Нажмите «Ближайшее время».',
+      'slots.nothing': 'В ближайшие 12 недель окон нет. Позвоните в клинику.',
+      'slots.dayEmpty': 'Нет окон',
+      'form.title': 'Ваши данные', 'form.first': 'Имя', 'form.last': 'Фамилия',
+      'form.email': 'Email', 'form.phone': 'Телефон', 'form.id': 'Номер удостоверения или паспорта',
+      'form.notes': 'Комментарий для врача (необязательно)',
+      'form.notesPh': 'Что нужно посмотреть, как давно это появилось, чем вы уже пользуетесь.',
+      'form.submit': 'Подтвердить запись', 'form.note': 'Оплата сейчас не требуется.',
+      'err.first': 'Укажите имя', 'err.last': 'Укажите фамилию',
+      'err.email': 'Укажите корректный email',
+      'err.phone': 'Укажите телефон, минимум 7 цифр',
+      'done.title': 'Запись подтверждена', 'done.again': 'Записаться на другое время',
+      'done.notes': 'Комментарий', 'done.id': 'Документ',
+      'footer.spec': 'Дерматология',
+      free: function (n) {
+        var d = n % 10, h = n % 100;
+        if (d === 1 && h !== 11) return n + ' место';
+        if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return n + ' места';
+        return n + ' мест';
+      }
+    }
+  };
+
+  var lang = 'en';
+  function t(k) { return I18N[lang][k] || k; }
+  function locale() { return I18N[lang].locale; }
+
+  /* =====================================================================
+     4. TIME IN THE CLINIC'S ZONE
+     A "day" is a civil date, stored as a Date pinned to 12:00 UTC so day
+     arithmetic can never slip across a DST boundary. A "slot" is minutes
+     since midnight in Cyprus, turned into a real instant only when it has
+     to be compared with the calendar feed.
+     ===================================================================== */
+  var TZ = CONFIG.timezone;
+
+  function zoneParts(instantDate) {
+    var f = new Intl.DateTimeFormat('en-US', {
+      timeZone: TZ, hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    var o = {};
+    f.formatToParts(instantDate).forEach(function (p) { o[p.type] = p.value; });
+    return { y: +o.year, m: +o.month - 1, d: +o.day, h: (+o.hour) % 24, mi: +o.minute, s: +o.second };
+  }
+
+  function zoneOffset(instantDate) {
+    var p = zoneParts(instantDate);
+    return Date.UTC(p.y, p.m, p.d, p.h, p.mi, p.s) - (instantDate.getTime() - instantDate.getMilliseconds());
+  }
+
+  function day(y, m, d) { return new Date(Date.UTC(y, m, d, 12)); }
+  function addDays(c, n) { return new Date(c.getTime() + n * 86400000); }
+  function mondayOf(c) { return addDays(c, -((c.getUTCDay() + 6) % 7)); }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function dayKey(c) { return c.getUTCFullYear() + '-' + pad(c.getUTCMonth() + 1) + '-' + pad(c.getUTCDate()); }
+  function toMinutes(hhmmStr) { var p = hhmmStr.split(':'); return +p[0] * 60 + +p[1]; }
+  function hhmm(min) { return pad(Math.floor(min / 60)) + ':' + pad(min % 60); }
+
+  function instant(c, minutes) {
+    var guess = Date.UTC(c.getUTCFullYear(), c.getUTCMonth(), c.getUTCDate(), 0, minutes);
+    var ts = guess - zoneOffset(new Date(guess));
+    ts = guess - zoneOffset(new Date(ts));
+    return new Date(ts);
+  }
+
+  function todayInZone() { var p = zoneParts(new Date()); return day(p.y, p.m, p.d); }
+
+  function tzOffsetLabel() {
+    var h = zoneOffset(new Date()) / 3600000;
+    return 'GMT' + (h >= 0 ? '+' : '−') + Math.abs(h);
+  }
+
+  function fmtDay(c, opts) {
+    var o = { timeZone: 'UTC' };
+    for (var k in opts) o[k] = opts[k];
+    return new Intl.DateTimeFormat(locale(), o).format(c);
+  }
+  function longDate(c) { return fmtDay(c, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+
+  /* =====================================================================
+     5. SLOT ENGINE
+     ===================================================================== */
+  function overlaps(aStart, aEnd, busy) {
+    for (var i = 0; i < busy.length; i++) {
+      if (aStart < busy[i].end && aEnd > busy[i].start) return true;
+    }
+    return false;
+  }
+
+  // True if [from, to) in minutes-since-midnight touches the hard-blocked
+  // window. The window wraps past midnight, so it is two ranges in a day.
+  function inHardBlock(from, to) {
+    var hb = CONFIG.hardBlock;
+    if (!hb) return false;
+    var blockFrom = toMinutes(hb.from), blockTo = toMinutes(hb.to);
+    var ranges = blockFrom <= blockTo
+      ? [[blockFrom, blockTo]]                        // same-day window
+      : [[blockFrom, 1440], [0, blockTo]];            // wraps midnight
+    return ranges.some(function (r) { return from < r[1] && to > r[0]; });
+  }
+
+  function openSlots(c, busy, minutes) {
+    var k = dayKey(c);
+    if (CONFIG.unavailableThrough && k <= CONFIG.unavailableThrough) return [];
+    if (CONFIG.holidays.indexOf(k) !== -1) return [];
+
+    var blocks = CONFIG.workingHours[c.getUTCDay()] || [];
+    var stride = minutes + CONFIG.bufferMinutes;
+    var now = new Date();
+    var out = [];
+    blocks.forEach(function (b) {
+      var from = toMinutes(b[0]), to = toMinutes(b[1]);
+      for (var m = from; m + minutes <= to; m += stride) {
+        if (inHardBlock(m, m + minutes)) continue;
+        var start = instant(c, m), end = instant(c, m + minutes);
+        if (start > now && !overlaps(start, end, busy)) {
+          out.push({ label: hhmm(m), endLabel: hhmm(m + minutes), start: start, end: end, day: c });
+        }
+      }
+    });
+    return out;
+  }
+
+  /* =====================================================================
+     6. STATE
+     ===================================================================== */
+  var today = todayInZone();
+  var firstWeek = mondayOf(today);
+  var lastWeek = mondayOf(addDays(today, CONFIG.bookableWeeks * 7));
+
+  var state = {
+    typeId: CONFIG.appointmentTypes[0].id,
+    mode: CONFIG.modes[0],
+    weekStart: firstWeek,
+    selectedSlot: null
+  };
+
+  var el = {
+    hours: document.getElementById('hours'),
+    types: document.getElementById('types'),
+    modes: document.getElementById('modes'),
+    month: document.getElementById('month'),
+    jump: document.getElementById('jump'),
+    refresh: document.getElementById('refresh'),
+    prev: document.getElementById('prev'),
+    next: document.getElementById('next'),
+    range: document.getElementById('range'),
+    week: document.getElementById('week'),
+    weekempty: document.getElementById('weekempty'),
+    tzBadge: document.getElementById('tzBadge'),
+    form: document.getElementById('form'),
+    chosen: document.getElementById('chosen'),
+    done: document.getElementById('done'),
+    receipt: document.getElementById('receipt')
+  };
+
+  function currentType() {
+    return CONFIG.appointmentTypes.filter(function (a) { return a.id === state.typeId; })[0];
+  }
+  function daysOf(weekStart) {
+    var out = [];
+    for (var i = 0; i < 7; i++) {
+      var c = addDays(weekStart, i);
+      if (CONFIG.visibleDays.indexOf(c.getUTCDay()) !== -1) out.push(c);
+    }
+    return out;
+  }
+  /* ---- availability cache ----------------------------------------
+     Apps Script takes a second or two to answer, so asking it once per
+     week made navigating painfully slow. Instead we fetch the whole
+     bookable window in one request and keep it. Week navigation, changing
+     the appointment length and the next-available search then all run
+     instantly against the cached copy. The refresh button clears it.
+     ---------------------------------------------------------------- */
+  var busyCache = null;      // array of {start, end}
+  var busyPending = null;    // in-flight promise, so we never ask twice at once
+
+  function allBookableDays() {
+    var out = [], c = firstWeek, end = addDays(lastWeek, 7);
+    while (c <= end) { out.push(c); c = addDays(c, 1); }
+    return out;
+  }
+
+  function loadBusy() {
+    if (busyCache) return Promise.resolve(busyCache);
+    if (busyPending) return busyPending;
+
+    busyPending = Availability
+      .getBusy(instant(firstWeek, 0), instant(addDays(lastWeek, 7), 0), allBookableDays())
+      .then(function (data) {
+        busyCache = data;
+        busyPending = null;
+        return data;
+      }, function (err) {
+        busyPending = null;
+        throw err;
+      });
+
+    return busyPending;
+  }
+
+  function busyFor(days) { return loadBusy(); }
+
+  /* =====================================================================
+     7. OPENING HOURS — built from CONFIG, grouped into day ranges
+     ===================================================================== */
+  function renderHours() {
+    var monday = mondayOf(today);
+    var order = [1, 2, 3, 4, 5, 6, 0];      // Monday first
+    var groups = [];
+
+    order.forEach(function (dw, i) {
+      var sched = JSON.stringify(CONFIG.workingHours[dw] || []);
+      var last = groups[groups.length - 1];
+      if (last && last.sched === sched) last.idx.push(i);
+      else groups.push({ sched: sched, idx: [i] });
+    });
+
+    el.hours.querySelectorAll('.hrow').forEach(function (n) { n.remove(); });
+
+    groups.forEach(function (g) {
+      var firstDay = addDays(monday, g.idx[0]);
+      var lastDay = addDays(monday, g.idx[g.idx.length - 1]);
+      var label = fmtDay(firstDay, { weekday: 'short' });
+      if (g.idx.length > 1) label += '–' + fmtDay(lastDay, { weekday: 'short' });
+
+      var row = document.createElement('div');
+      row.className = 'hrow';
+
+      var days = document.createElement('span');
+      days.className = 'hdays';
+      days.textContent = label;
+
+      var times = document.createElement('span');
+      times.className = 'htimes';
+      var blocks = JSON.parse(g.sched);
+      if (!blocks.length) {
+        var shut = document.createElement('span');
+        shut.className = 'shut';
+        shut.textContent = t('hours.closed');
+        times.appendChild(shut);
+      } else {
+        blocks.forEach(function (b) {
+          var line = document.createElement('span');
+          line.textContent = b[0] + '–' + b[1];
+          times.appendChild(line);
+        });
+      }
+
+      row.appendChild(days);
+      row.appendChild(times);
+      el.hours.appendChild(row);
+    });
+  }
+
+  /* =====================================================================
+     8. RENDER
+     ===================================================================== */
+  function choiceButton(name, note, active, onClick) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'choice';
+    b.setAttribute('aria-pressed', active ? 'true' : 'false');
+    b.innerHTML = '<span class="name"></span><span class="len"></span>';
+    b.querySelector('.name').textContent = name;
+    b.querySelector('.len').textContent = note;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function renderTypes() {
+    el.types.innerHTML = '';
+    CONFIG.appointmentTypes.forEach(function (a) {
+      el.types.appendChild(choiceButton(
+        t('type.' + a.id), a.minutes + ' ' + t('unit.min'), a.id === state.typeId,
+        function () {
+          state.typeId = a.id;
+          state.selectedSlot = null;
+          el.form.hidden = true; el.done.hidden = true;
+          renderTypes(); render();
+        }
+      ));
+    });
+  }
+
+  function renderModes() {
+    el.modes.innerHTML = '';
+    CONFIG.modes.forEach(function (m) {
+      el.modes.appendChild(choiceButton(
+        t('mode.' + m), t('mode.' + m + 'Note'), m === state.mode,
+        function () {
+          state.mode = m;
+          renderModes();
+          if (state.selectedSlot) el.chosen.textContent = slotSummary();
+        }
+      ));
+    });
+  }
+
+  function renderMonths() {
+    el.month.innerHTML = '';
+    for (var i = 0; i < 12; i++) {
+      var c = day(today.getUTCFullYear(), today.getUTCMonth() + i, 1);
+      var o = document.createElement('option');
+      o.value = c.getUTCFullYear() + '-' + pad(c.getUTCMonth() + 1);
+      o.textContent = fmtDay(c, { month: 'long' }) + ' ' + c.getUTCFullYear();
+      el.month.appendChild(o);
+    }
+  }
+
+  var renderToken = 0;
+
+  function render() {
+    var token = ++renderToken;
+    var days = daysOf(state.weekStart);
+
+    el.range.textContent =
+      fmtDay(days[0], { day: 'numeric', month: 'short' }) + ' – ' +
+      fmtDay(days[days.length - 1], { day: 'numeric', month: 'short' }) + ' ' + days[0].getUTCFullYear();
+    el.month.value = days[0].getUTCFullYear() + '-' + pad(days[0].getUTCMonth() + 1);
+    el.prev.disabled = state.weekStart <= firstWeek;
+    el.next.disabled = state.weekStart >= lastWeek;
+    el.tzBadge.textContent = t('book.tzBadge') + ' (' + tzOffsetLabel() + ')';
+
+    return busyFor(days).then(function (busy) {
+      if (token !== renderToken) return;
+      var minutes = currentType().minutes;
+      var total = 0;
+
+      el.week.innerHTML = '';
+      el.week.style.gridTemplateColumns = 'repeat(' + days.length + ', minmax(0,1fr))';
+
+      days.forEach(function (c) {
+        var slots = openSlots(c, busy, minutes);
+        total += slots.length;
+
+        var col = document.createElement('div');
+        col.className = 'col' + (dayKey(c) === dayKey(today) ? ' today' : '');
+
+        var head = document.createElement('div');
+        head.className = 'colhead';
+        head.innerHTML = '<span class="dow"></span><span class="num"></span><span class="free"></span>';
+        head.querySelector('.dow').textContent = fmtDay(c, { weekday: 'short' });
+        head.querySelector('.num').textContent = c.getUTCDate();
+        var freeEl = head.querySelector('.free');
+        freeEl.textContent = slots.length ? I18N[lang].free(slots.length) : '—';
+        if (!slots.length) freeEl.className = 'free zero';
+        col.appendChild(head);
+
+        var list = document.createElement('div');
+        list.className = 'collist';
+        if (!slots.length) {
+          var none = document.createElement('p');
+          none.className = 'none';
+          none.textContent = t('slots.dayEmpty');
+          list.appendChild(none);
+        } else {
+          slots.forEach(function (s) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'slot';
+            b.textContent = s.label;
+            b.setAttribute('aria-label', longDate(c) + ', ' + s.label + '–' + s.endLabel + ', ' + t('book.tzBadge'));
+            b.setAttribute('aria-pressed', state.selectedSlot && +state.selectedSlot.start === +s.start ? 'true' : 'false');
+            b.addEventListener('click', function () {
+              state.selectedSlot = s;
+              openForm();
+              render();
+            });
+            list.appendChild(b);
+          });
+        }
+        col.appendChild(list);
+        el.week.appendChild(col);
+      });
+
+      el.weekempty.hidden = total > 0;
+    }).catch(function (err) {
+      if (token !== renderToken) return;
+      el.week.innerHTML = '';
+      el.weekempty.hidden = false;
+      el.weekempty.textContent = 'Could not load availability: ' + err.message;
+      console.error('Availability request failed:', err);
+    });
+  }
+
+  function slotSummary() {
+    var s = state.selectedSlot;
+    return longDate(s.day) + ' · ' + s.label + '–' + s.endLabel + ' (' + t('book.tzBadge') + ')' +
+           '\n' + t('type.' + state.typeId) + ', ' + currentType().minutes + ' ' + t('unit.minutes') +
+           ' · ' + t('mode.' + state.mode);
+  }
+
+  function openForm() {
+    el.done.hidden = true;
+    el.form.hidden = false;
+    el.chosen.textContent = slotSummary();
+    document.getElementById('first').focus({ preventScroll: true });
+    el.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* =====================================================================
+     9. NEXT AVAILABLE
+     ===================================================================== */
+  function findNextAvailable() {
+    var minutes = currentType().minutes;
+    // One request (usually already cached), then a local scan.
+    return loadBusy().then(function (busy) {
+      for (var w = firstWeek; w <= lastWeek; w = addDays(w, 7)) {
+        var days = daysOf(w);
+        for (var i = 0; i < days.length; i++) {
+          if (openSlots(days[i], busy, minutes).length > 0) return w;
+        }
+      }
+      return null;
+    });
+  }
+
+  el.jump.addEventListener('click', function () {
+    var label = el.jump.textContent;
+    el.jump.disabled = true;
+    el.jump.textContent = t('book.searching');
+
+    function finish() {
+      el.jump.disabled = false;
+      el.jump.textContent = label;
+    }
+
+    // Always searches forward from today, never from the week on screen, so
+    // the button means "soonest opening" rather than "next week".
+    findNextAvailable().then(function (w) {
+      finish();
+      if (!w) { el.weekempty.textContent = t('slots.nothing'); el.weekempty.hidden = false; return; }
+      state.weekStart = w;
+      state.selectedSlot = null;
+      el.form.hidden = true;
+      return render().then(function () {
+        var firstSlot = el.week.querySelector('.slot');
+        if (firstSlot) {
+          firstSlot.focus({ preventScroll: true });
+          firstSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    }).catch(function (err) {
+      finish();
+      el.weekempty.hidden = false;
+      el.weekempty.textContent = 'Could not load availability: ' + err.message;
+      console.error('Next available failed:', err);
+    });
+  });
+
+  /* =====================================================================
+     10. CONTROLS
+     ===================================================================== */
+  el.month.addEventListener('change', function () {
+    var p = el.month.value.split('-');
+    var target = mondayOf(day(+p[0], +p[1] - 1, 1));
+    if (target < firstWeek) target = firstWeek;
+    state.weekStart = target;
+    state.selectedSlot = null;
+    el.form.hidden = true;
+    render();
+  });
+
+  // Re-asks the calendar for this week. Useful after changing something
+  // in Google Calendar without reloading the whole page.
+  el.refresh.addEventListener('click', function () {
+    if (el.refresh.disabled) return;
+    el.refresh.disabled = true;
+    el.refresh.classList.add('spinning');
+    busyCache = null;               // force a fresh request
+    var keep = state.selectedSlot;
+    render().then(function () {
+      // If the slot the patient had chosen has just been taken, drop it.
+      if (keep && !el.week.querySelector('.slot[aria-pressed="true"]')) {
+        state.selectedSlot = null;
+        el.form.hidden = true;
+      }
+    }).catch(function () {}).then(function () {
+      setTimeout(function () {
+        el.refresh.disabled = false;
+        el.refresh.classList.remove('spinning');
+      }, 400);
+    });
+  });
+
+  el.prev.addEventListener('click', function () { step(-7); });
+  el.next.addEventListener('click', function () { step(7); });
+  function step(n) {
+    state.weekStart = addDays(state.weekStart, n);
+    state.selectedSlot = null;
+    el.form.hidden = true;
+    render();
+  }
+
+  document.getElementById('heroCta').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('book').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () {
+      var first = el.types.querySelector('button');
+      if (first) first.focus({ preventScroll: true });
+    }, 450);
+  });
+
+  /* ---------- validation + submit ---------- */
+  function setError(id, msg) {
+    var input = document.getElementById(id);
+    document.getElementById('err-' + id).textContent = msg || '';
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    return !msg;
+  }
+
+  el.form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var val = function (id) { return document.getElementById(id).value.trim(); };
+
+    var ok = true;
+    ok = setError('first', val('first') ? '' : t('err.first')) && ok;
+    ok = setError('last', val('last') ? '' : t('err.last')) && ok;
+    ok = setError('email', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val('email')) ? '' : t('err.email')) && ok;
+    ok = setError('phone', val('phone').replace(/\D/g, '').length >= 7 ? '' : t('err.phone')) && ok;
+    // ID is collected but not verified.
+    if (!ok || !state.selectedSlot) return;
+
+    var summary = slotSummary();
+    var payload = {
+      start: state.selectedSlot.start,
+      end: state.selectedSlot.end,
+      timezone: TZ,
+      type: state.typeId,
+      mode: state.mode,
+      first: val('first'), last: val('last'),
+      email: val('email'), phone: val('phone'),
+      idNumber: val('idnum'),
+      notes: val('notes'), locale: locale()
+    };
+
+    var btn = el.form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+
+    Availability.createBooking(payload).then(function (res) {
+      btn.disabled = false;
+      if (!res.ok) { setError('email', res.error || 'Could not save'); return; }
+
+      var lines = summary.split('\n');
+      lines.push(payload.first + ' ' + payload.last);
+      lines.push(payload.email + ' · ' + payload.phone);
+      if (payload.idNumber) lines.push(t('done.id') + ': ' + payload.idNumber);
+      if (payload.notes) lines.push(t('done.notes') + ': ' + payload.notes);
+
+      el.receipt.innerHTML = '';
+      lines.forEach(function (line, i) {
+        if (i) el.receipt.appendChild(document.createElement('br'));
+        if (i === 0) {
+          var strong = document.createElement('b');
+          strong.textContent = line;
+          el.receipt.appendChild(strong);
+        } else {
+          el.receipt.appendChild(document.createTextNode(line));
+        }
+      });
+
+      el.form.reset();
+      el.form.hidden = true;
+      el.done.hidden = false;
+      state.selectedSlot = null;
+      busyCache = null;               // the new event must show up
+      render();
+      el.done.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  });
+
+  document.getElementById('again').addEventListener('click', function () {
+    el.done.hidden = true;
+    document.getElementById('book').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  /* ---------- language ---------- */
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(function (n) {
+      n.textContent = t(n.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (n) {
+      n.placeholder = t(n.getAttribute('data-i18n-ph'));
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (n) {
+      n.setAttribute('aria-label', t(n.getAttribute('data-i18n-aria')));
+    });
+    document.querySelectorAll('#lang button').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false');
+    });
+    renderHours();
+    renderTypes();
+    renderModes();
+    renderMonths();
+    if (state.selectedSlot) el.chosen.textContent = slotSummary();
+    render();
+  }
+
+  document.getElementById('lang').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-lang]');
+    if (!b) return;
+    lang = b.getAttribute('data-lang');
+    applyLang();
+  });
+
+  /* ---------- Wood's lamp (the UV lamp used to examine skin) ---------- */
+  var hero = document.querySelector('.hero');
+  var lamp = document.querySelector('.lamp');
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    hero.addEventListener('pointermove', function (e) {
+      var r = hero.getBoundingClientRect();
+      lamp.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      lamp.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      hero.classList.add('lit');
+    });
+    hero.addEventListener('pointerleave', function () { hero.classList.remove('lit'); });
+  }
+
+  /* ---------- start on the first week that actually has openings ---------- */
+  applyLang();
+  findNextAvailable().then(function (w) {
+    if (w && +w !== +state.weekStart) { state.weekStart = w; render(); }
+  }).catch(function (err) {
+    console.error('Startup availability check failed:', err);
+  });
+})();
+</script>
+</body>
+</html>
